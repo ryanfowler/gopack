@@ -18,6 +18,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strconv"
+	"strings"
 	"sync"
 
 	"github.com/google/go-containerregistry/pkg/authn"
@@ -134,7 +136,7 @@ func logProgress(ctx context.Context, l types.Logger, wg *sync.WaitGroup, ch <-c
 		l.Println()
 		wg.Done()
 	}()
-	l.RePrintf("Pushing tag %s", tag)
+	l.Printf("Pushing tag %s", tag)
 	for {
 		select {
 		case <-ctx.Done():
@@ -143,8 +145,16 @@ func logProgress(ctx context.Context, l types.Logger, wg *sync.WaitGroup, ch <-c
 			if !ok {
 				return
 			}
-			l.RePrintf("Pushing tag %s: %d/%d", tag, update.Complete, update.Total)
+			complete := bytesToMegaBytes(update.Complete)
+			total := bytesToMegaBytes(update.Total)
+			l.RePrintf("Pushing tag %s: %s/%s MB", tag, complete, total)
 		}
 	}
+}
 
+func bytesToMegaBytes(bytes int64) string {
+	mb := float64(bytes) / 1_000_000
+	out := strconv.FormatFloat(mb, 'f', 2, 64)
+	out = strings.TrimRight(out, "0")
+	return strings.TrimSuffix(out, ".")
 }

@@ -38,6 +38,10 @@ func StdErrLogger() types.Logger {
 	}
 }
 
+func (l *defaultLogger) Printf(format string, a ...any) {
+	fmt.Fprintf(os.Stderr, format, a...)
+}
+
 func (l *defaultLogger) Println(a ...any) {
 	fmt.Fprintln(os.Stderr, a...)
 }
@@ -45,8 +49,6 @@ func (l *defaultLogger) Println(a ...any) {
 func (l *defaultLogger) RePrintf(format string, a ...any) {
 	if l.isTerminal {
 		fmt.Fprintf(os.Stderr, "\033[2K\r"+format, a...)
-	} else {
-		l.Println(fmt.Sprintf(format, a...))
 	}
 }
 
@@ -55,6 +57,8 @@ func (l *defaultLogger) IsNop() bool { return false }
 type nopLogger struct{}
 
 func NopLogger() types.Logger { return nopLogger{} }
+
+func (l nopLogger) Printf(format string, a ...any) {}
 
 func (l nopLogger) Println(a ...any) {}
 
