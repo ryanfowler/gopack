@@ -1,6 +1,10 @@
 # gopack
 
-Build and publish a Go binary as a minimal OCI image; Docker not required.
+Build and publish a Go binary as a minimal OCI image
+
+`gopack` uses your locally installed version of Go to cross-compile your
+application, building an OCI image with the resulting binary, and pushing your
+image to a remote repository or a locally running daemon. Docker not required.
 
 ### Install
 
