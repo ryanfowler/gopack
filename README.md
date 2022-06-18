@@ -20,11 +20,11 @@ are optional, some notable flags are:
 - `--repository`: repository to push the final image to (default: Go binary name)
 - `--platform`: platform(s) to build the image(s) for (default: `linux/amd64`)
 - `--tag`: tag(s) to push the image with (default: `latest`)
-- `--daemon`: push the final image to a local daemon (e.g. `docker`)
+- `--daemon`: push the final image to a local daemon, instead of the remote repository (e.g. `docker`)
 
-As an example: to build an image of the `gopack` CLI for platforms "linux/amd64"
-& "linux/arm64" and push it to a Github repository with the tags "1234" &
-"5678", you can use the following command from the project root:
+As an example: to build an image of the `gopack` CLI for platforms `linux/amd64`
+& `linux/arm64` and push it to a Github repository with the tags `1234` &
+`5678`, you can use the following command from the project root:
 
 ```sh
 gopack run ./cmd/gopack -r ghcr.io/OWNER/gopack -t 1234 -t 5678 -p linux/amd64 -p linux/arm64
