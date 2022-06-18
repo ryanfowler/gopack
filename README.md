@@ -22,15 +22,37 @@ are optional, some notable flags are:
 - `--tag`: tag(s) to push the image with (default: `latest`)
 - `--daemon`: push the final image to a local daemon, instead of the remote repository (e.g. `docker`)
 
-As an example: to build an image of the `gopack` CLI for platforms `linux/amd64`
-& `linux/arm64` and push it to a Github repository with the tags `1234` &
-`5678`, you can use the following command from the project root:
+#### Using a custom base image
 
 ```sh
-gopack run ./cmd/gopack -r ghcr.io/OWNER/gopack -t 1234 -t 5678 -p linux/amd64 -p linux/arm64
+gopack run ./cmd/gopack -b myimage:tag
 ```
 
-Please run `gopack run -h` for more information about the available options.
+#### Pushing to a specific remote respository
+
+```sh
+gopack run ./cmd/gopack -r ghcr.io/OWNER/gopack
+```
+
+#### Building for multiple platforms
+
+```sh
+gopack run ./cmd/gopack -p linux/amd64 -p linux/arm64
+```
+
+#### Specifying tags
+
+```sh
+gopack run ./cmd/gopack -t latest -t 12345678
+```
+
+#### Push to a local daemon
+
+```sh
+gopack run ./cmd/gopack --daemon docker
+```
+
+_Please run `gopack run -h` for more information about the available options._
 
 ### License
 
