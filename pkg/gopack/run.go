@@ -55,7 +55,7 @@ func Run(ctx context.Context, options ...RunOption) (string, error) {
 		opts.repository = binName
 	}
 
-	baseDesc, err := getBaseDesc(ctx, opts.base)
+	baseDesc, err := getBaseDesc(ctx, opts)
 	if err != nil {
 		return "", err
 	}
@@ -93,9 +93,9 @@ func parseBinName(mainPath string) (string, error) {
 
 func buildAllPlatforms(ctx context.Context, imgs map[types.Platform]v1.Image, binName string, opts *runOptions) (map[types.Platform]v1.Image, error) {
 	if len(opts.platforms) == 1 {
-		opts.logger.Println(fmt.Sprintf("Building image for platform %s", opts.platforms[0]))
+		opts.logger.Printf("Building image for platform %s\n", opts.platforms[0])
 	} else {
-		opts.logger.Println(fmt.Sprintf("Building images for platforms %v", opts.platforms))
+		opts.logger.Printf("Building images for platforms %v\n", opts.platforms)
 	}
 
 	goBuilder := newGoBuilder(opts)
@@ -235,8 +235,9 @@ func chooseOutput(repo string, img digester, tags []string) (string, error) {
 
 }
 
-func getBaseDesc(ctx context.Context, base string) (*remote.Descriptor, error) {
-	baseRef, err := name.ParseReference(base)
+func getBaseDesc(ctx context.Context, opts *runOptions) (*remote.Descriptor, error) {
+	opts.logger.Printf("Fetching manifest for base: %s\n", opts.base)
+	baseRef, err := name.ParseReference(opts.base)
 	if err != nil {
 		return nil, fmt.Errorf("unable to parse base: %w", err)
 	}
