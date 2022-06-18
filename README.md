@@ -11,7 +11,7 @@ image to a remote repository or a locally running daemon. Docker not required.
 `gopack` can be installed using the command:
 
 ```sh
-go install github.com/ryanfowler/gopack@latest
+go install github.com/ryanfowler/gopack/cmd/gopack@latest
 ```
 
 Go 1.18+ is required.
