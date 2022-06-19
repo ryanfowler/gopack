@@ -32,6 +32,7 @@ type defaultLogger struct {
 	isTerminal bool
 }
 
+// StdErrLogger returns a new Logger that logs to stderr.
 func StdErrLogger() types.Logger {
 	return &defaultLogger{
 		isTerminal: term.IsTerminal(int(os.Stderr.Fd())),
@@ -52,10 +53,9 @@ func (l *defaultLogger) RePrintf(format string, a ...any) {
 	}
 }
 
-func (l *defaultLogger) IsNop() bool { return false }
-
 type nopLogger struct{}
 
+// NopLogger returns a Logger with no-op methods.
 func NopLogger() types.Logger { return nopLogger{} }
 
 func (l nopLogger) Printf(format string, a ...any) {}
@@ -63,5 +63,3 @@ func (l nopLogger) Printf(format string, a ...any) {}
 func (l nopLogger) Println(a ...any) {}
 
 func (l nopLogger) RePrintf(format string, a ...any) {}
-
-func (l nopLogger) IsNop() bool { return true }

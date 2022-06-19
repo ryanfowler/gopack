@@ -14,9 +14,9 @@
 
 package types
 
+// Logger represents the interface to log to stderr.
 type Logger interface {
 	Printf(format string, a ...any)
 	Println(a ...any)
 	RePrintf(format string, a ...any)
-	IsNop() bool
 }

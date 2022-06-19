@@ -36,12 +36,14 @@ var keychain = authn.NewMultiKeychain(
 	github.Keychain,
 )
 
+// Get returns the descriptor for the provided image reference.
 func Get(ctx context.Context, ref name.Reference) (*remote.Descriptor, error) {
 	return remote.Get(ref,
 		remote.WithContext(ctx),
 		remote.WithAuthFromKeychain(keychain))
 }
 
+// PushDaemon writes the provided image to the local Docker daemon.
 func PushDaemon(ctx context.Context, imgName string, img v1.Image, options ...PushOption) error {
 	opts := defaultPushOptions()
 	for _, o := range options {
@@ -78,6 +80,8 @@ func PushDaemon(ctx context.Context, imgName string, img v1.Image, options ...Pu
 	return nil
 }
 
+// Push writes img to the remote repo. The provided img must be either a
+// v1.Image or v1.ImageIndex.
 func Push(ctx context.Context, repo name.Repository, img remote.Taggable, options ...PushOption) error {
 	opts := defaultPushOptions()
 	for _, o := range options {
@@ -105,7 +109,7 @@ func writeImage(ctx context.Context, tag name.Tag, img remote.Taggable, opts *pu
 		remote.WithAuthFromKeychain(keychain),
 	}
 
-	if opts.logger != nil && !opts.logger.IsNop() {
+	if opts.logger != nil {
 		var wg sync.WaitGroup
 		wg.Add(1)
 		defer wg.Wait()
