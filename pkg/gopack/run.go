@@ -55,12 +55,13 @@ func Run(ctx context.Context, options ...RunOption) (string, error) {
 		opts.repository = binName
 	}
 
+	platforms := parsePlatforms(opts.logger, opts.platforms)
+
 	baseDesc, err := getBaseDesc(ctx, opts)
 	if err != nil {
 		return "", err
 	}
 
-	platforms := parsePlatforms(opts.platforms)
 	baseImgs, err := matchImages(platforms, baseDesc)
 	if err != nil {
 		return "", err
@@ -248,10 +249,13 @@ func getBaseDesc(ctx context.Context, opts *runOptions) (*remote.Descriptor, err
 	return desc, nil
 }
 
-func parsePlatforms(in []string) []types.Platform {
+func parsePlatforms(l types.Logger, in []string) []types.Platform {
 	out := make([]types.Platform, len(in))
 	for i, p := range in {
 		out[i] = types.ParsePlatform(p)
+		if !out[i].IsSupported() {
+			l.Printf("Warning: platform %q is not officially supported\n", p)
+		}
 	}
 	return out
 }
