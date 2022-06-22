@@ -18,6 +18,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"runtime/debug"
 	"strings"
 
 	"github.com/ryanfowler/gopack/internal/oci"
@@ -44,6 +45,10 @@ var (
 )
 
 func init() {
+	if info, ok := debug.ReadBuildInfo(); ok {
+		rootCmd.Version = info.Main.Version
+	}
+
 	rootCmd.AddCommand(runCmd)
 
 	runCmd.Flags().StringVarP(&base, "base", "b", "gcr.io/distroless/static:nonroot", "repository to use as the base image")
