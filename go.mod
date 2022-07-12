@@ -3,7 +3,7 @@ module github.com/ryanfowler/gopack
 go 1.18
 
 require (
-	github.com/containerd/stargz-snapshotter/estargz v0.11.4
+	github.com/containerd/stargz-snapshotter/estargz v0.12.0
 	github.com/google/go-containerregistry v0.10.0
 	github.com/spf13/cobra v1.5.0
 	golang.org/x/sync v0.0.0-20220601150217-0de741cfad7f
@@ -22,7 +22,7 @@ require (
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
-	github.com/klauspost/compress v1.15.4 // indirect
+	github.com/klauspost/compress v1.15.7 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.0.3-0.20220114050600-8b9d41f48198 // indirect
