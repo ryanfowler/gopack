@@ -7,7 +7,7 @@ require (
 	github.com/google/go-containerregistry v0.12.0
 	github.com/spf13/cobra v1.6.1
 	golang.org/x/sync v0.1.0
-	golang.org/x/term v0.1.0
+	golang.org/x/term v0.2.0
 )
 
 require (
@@ -33,7 +33,7 @@ require (
 	golang.org/x/mod v0.6.0 // indirect
 	golang.org/x/net v0.1.0 // indirect
 	golang.org/x/oauth2 v0.1.0 // indirect
-	golang.org/x/sys v0.1.0 // indirect
+	golang.org/x/sys v0.2.0 // indirect
 	golang.org/x/tools v0.1.12 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
