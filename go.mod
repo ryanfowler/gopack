@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/containerd/stargz-snapshotter/estargz v0.12.1
-	github.com/google/go-containerregistry v0.12.0
+	github.com/google/go-containerregistry v0.12.1
 	github.com/spf13/cobra v1.6.1
 	golang.org/x/sync v0.1.0
 	golang.org/x/term v0.2.0
