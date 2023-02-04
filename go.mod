@@ -1,6 +1,6 @@
 module github.com/ryanfowler/gopack
 
-go 1.18
+go 1.20
 
 require (
 	github.com/containerd/stargz-snapshotter/estargz v0.14.1
