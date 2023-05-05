@@ -6,7 +6,7 @@ require (
 	github.com/containerd/stargz-snapshotter/estargz v0.14.3
 	github.com/google/go-containerregistry v0.14.0
 	github.com/spf13/cobra v1.7.0
-	golang.org/x/sync v0.1.0
+	golang.org/x/sync v0.2.0
 	golang.org/x/term v0.8.0
 )
 
