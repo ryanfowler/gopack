@@ -84,12 +84,6 @@ func WithDaemon(v string) RunOption {
 	}
 }
 
-func WithEStargz(v bool) RunOption {
-	return func(ro *runOptions) {
-		ro.estargzEnabled = v
-	}
-}
-
 func WithLabels(v map[string]string) RunOption {
 	return func(ro *runOptions) {
 		ro.labels = v
@@ -130,7 +124,6 @@ type runOptions struct {
 	base             string
 	compressionLevel int
 	daemon           string
-	estargzEnabled   bool
 	labels           map[string]string
 	platforms        []string
 	repository       string
@@ -151,7 +144,6 @@ func defaultRunOptions() *runOptions {
 		base:             "gcr.io/distroless/static:nonroot",
 		compressionLevel: gzip.DefaultCompression,
 		daemon:           "",
-		estargzEnabled:   false,
 		labels:           nil,
 		platforms:        []string{types.DefaultPlatform.String()},
 		repository:       "",
