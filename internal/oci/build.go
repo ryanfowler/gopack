@@ -23,7 +23,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/containerd/stargz-snapshotter/estargz"
 	v1 "github.com/google/go-containerregistry/pkg/v1"
 	"github.com/google/go-containerregistry/pkg/v1/mutate"
 	"github.com/google/go-containerregistry/pkg/v1/tarball"
@@ -45,12 +44,6 @@ func BuildImage(ctx context.Context, goBinPath string, base v1.Image, options ..
 	layerOpts := []tarball.LayerOption{
 		tarball.WithCompressedCaching,
 		tarball.WithCompressionLevel(opts.gzipCompressionLevel),
-	}
-	if opts.estargzEnabled {
-		layerOpts = append(layerOpts,
-			tarball.WithEstargz,
-			tarball.WithEstargzOptions(
-				estargz.WithPrioritizedFiles([]string{entrypoint})))
 	}
 
 	layer, err := tarball.LayerFromOpener(func() (io.ReadCloser, error) {

@@ -34,7 +34,6 @@ var (
 	compression int
 	concurrency int
 	daemon      string
-	estargz     bool
 	labels      []string
 	ldflags     string
 	mod         string
@@ -56,7 +55,6 @@ func init() {
 	runCmd.Flags().IntVar(&compression, "compression", -1, "gzip compression level of image layers")
 	runCmd.Flags().IntVarP(&concurrency, "concurrency", "c", 0, "number of concurrent builds (default GOMAXPROCS)")
 	runCmd.Flags().StringVarP(&daemon, "daemon", "d", "", "push image to local daemon (e.g. docker)")
-	runCmd.Flags().BoolVar(&estargz, "estargz", false, "enable estargz on image")
 	runCmd.Flags().StringSliceVarP(&labels, "label", "l", nil, "labels to include in image")
 	runCmd.Flags().StringVar(&ldflags, "ldflags", "", "ldflags used during Go compilation")
 	runCmd.Flags().StringVar(&mod, "mod", "", "mod flag used during Go compilation")
@@ -82,7 +80,6 @@ var runCmd = &cobra.Command{
 		options := []gopack.RunOption{
 			gopack.WithCGOEnabled(cgoEnabled),
 			gopack.WithTrimpath(trimpath),
-			gopack.WithEStargz(estargz),
 		}
 
 		if concurrency > 0 {

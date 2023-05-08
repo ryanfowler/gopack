@@ -149,7 +149,6 @@ func build(ctx context.Context, goBuilder *golang.GoBuilder, binName string, p t
 
 	buildOptions := []oci.BuildOption{
 		oci.WithCompressionLevel(opts.compressionLevel),
-		oci.WithEStargz(opts.estargzEnabled),
 		oci.WithLabels(opts.labels),
 	}
 	return oci.BuildImage(ctx, goBinPath, img, buildOptions...)
