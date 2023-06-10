@@ -1,17 +1,17 @@
-name: Continuous Integration
+name: ci
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go: [ '1.20' ]
+        go: ["1.20"]
     steps:
     - uses: actions/checkout@v3
 
@@ -24,17 +24,14 @@ jobs:
     - name: Format
       run: gofmt -s -w . && git diff --exit-code
 
-    - name: Tidy
-      run: go mod tidy && git diff --exit-code
-
     - name: Mod Download
       run: go mod download
 
+    - name: Tidy
+      run: go mod tidy && git diff --exit-code
+
     - name: Mod Verify
       run: go mod verify
-
-    - name: Build
-      run: make install
 
     - name: Lint
       uses: dominikh/staticcheck-action@v1.3.0
@@ -45,3 +42,6 @@ jobs:
 
     - name: Test
       run: make test
+
+    - name: Install
+      run: make install
