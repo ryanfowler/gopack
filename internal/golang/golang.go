@@ -44,7 +44,7 @@ func (b *GoBuilder) GoBuild(ctx context.Context, outPath string, platform types.
 		args = append(args, "-trimpath")
 	}
 	if b.opts.ldflags != "" {
-		args = append(args, "-ldflags="+b.opts.ldflags)
+		args = append(args, "-ldflags", b.opts.ldflags)
 	}
 	if b.opts.modFlag != "" {
 		args = append(args, "-mod", b.opts.modFlag)
