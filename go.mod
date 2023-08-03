@@ -3,7 +3,7 @@ module github.com/ryanfowler/gopack
 go 1.20
 
 require (
-	github.com/google/go-containerregistry v0.15.2
+	github.com/google/go-containerregistry v0.16.1
 	github.com/spf13/cobra v1.7.0
 	golang.org/x/sync v0.3.0
 	golang.org/x/term v0.10.0
