@@ -11,37 +11,37 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go: ["1.20", "1.21"]
+        go: ["1.22"]
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Set up Go ${{ matrix.go }}
-      uses: actions/setup-go@v5
-      with:
-        go-version: ${{ matrix.go }}
-        check-latest: true
+      - name: Set up Go ${{ matrix.go }}
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.go }}
+          check-latest: true
 
-    - name: Format
-      run: gofmt -s -w . && git diff --exit-code
+      - name: Format
+        run: gofmt -s -w . && git diff --exit-code
 
-    - name: Mod Download
-      run: go mod download
+      - name: Mod Download
+        run: go mod download
 
-    - name: Tidy
-      run: go mod tidy && git diff --exit-code
+      - name: Tidy
+        run: go mod tidy && git diff --exit-code
 
-    - name: Mod Verify
-      run: go mod verify
+      - name: Mod Verify
+        run: go mod verify
 
-    - name: Lint
-      uses: dominikh/staticcheck-action@v1.3.0
-      with:
-        version: "2023.1"
-        install-go: false
-        cache-key: ${{ matrix.go }}
+      - name: Lint
+        uses: dominikh/staticcheck-action@v1.3.0
+        with:
+          version: "2023.1"
+          install-go: false
+          cache-key: ${{ matrix.go }}
 
-    - name: Test
-      run: make test
+      - name: Test
+        run: make test
 
-    - name: Install
-      run: make install
+      - name: Install
+        run: make install
