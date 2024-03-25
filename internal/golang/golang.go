@@ -23,7 +23,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/ryanfowler/gopack/pkg/types"
+	"github.com/ryanfowler/gopack/internal/types"
 )
 
 type GoBuilder struct {

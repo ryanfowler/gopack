@@ -25,7 +25,7 @@ import (
 
 	"github.com/ryanfowler/gopack/internal/golang"
 	"github.com/ryanfowler/gopack/internal/oci"
-	"github.com/ryanfowler/gopack/pkg/types"
+	"github.com/ryanfowler/gopack/internal/types"
 
 	"github.com/google/go-containerregistry/pkg/name"
 	v1 "github.com/google/go-containerregistry/pkg/v1"

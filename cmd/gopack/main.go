@@ -21,9 +21,9 @@ import (
 	"runtime/debug"
 	"strings"
 
+	"github.com/ryanfowler/gopack/internal/gopack"
 	"github.com/ryanfowler/gopack/internal/oci"
-	"github.com/ryanfowler/gopack/pkg/gopack"
-	"github.com/ryanfowler/gopack/pkg/types"
+	"github.com/ryanfowler/gopack/internal/types"
 
 	"github.com/spf13/cobra"
 )

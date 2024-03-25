@@ -19,7 +19,7 @@ import (
 	"runtime"
 
 	"github.com/ryanfowler/gopack/internal/oci"
-	"github.com/ryanfowler/gopack/pkg/types"
+	"github.com/ryanfowler/gopack/internal/types"
 )
 
 type RunOption func(*runOptions)

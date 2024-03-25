@@ -17,7 +17,7 @@ package oci
 import (
 	"compress/gzip"
 
-	"github.com/ryanfowler/gopack/pkg/types"
+	"github.com/ryanfowler/gopack/internal/types"
 )
 
 var DefaultTag = "latest"

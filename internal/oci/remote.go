@@ -22,6 +22,8 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/ryanfowler/gopack/internal/types"
+
 	"github.com/google/go-containerregistry/pkg/authn"
 	"github.com/google/go-containerregistry/pkg/authn/github"
 	"github.com/google/go-containerregistry/pkg/name"
@@ -29,7 +31,6 @@ import (
 	"github.com/google/go-containerregistry/pkg/v1/daemon"
 	"github.com/google/go-containerregistry/pkg/v1/google"
 	"github.com/google/go-containerregistry/pkg/v1/remote"
-	"github.com/ryanfowler/gopack/pkg/types"
 )
 
 var keychain = authn.NewMultiKeychain(

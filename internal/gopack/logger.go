@@ -18,7 +18,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/ryanfowler/gopack/pkg/types"
+	"github.com/ryanfowler/gopack/internal/types"
 
 	"golang.org/x/term"
 )
