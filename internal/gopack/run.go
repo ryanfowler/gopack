@@ -232,7 +232,6 @@ func chooseOutput(repo string, img digester, tags []string) (string, error) {
 		return "", err
 	}
 	return fmt.Sprintf("%s@%s", repo, digest), nil
-
 }
 
 func getBaseDesc(ctx context.Context, opts *runOptions) (*remote.Descriptor, error) {

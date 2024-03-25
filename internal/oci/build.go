@@ -106,7 +106,7 @@ func tarGoBin(goBinPath, entrypoint string) ([]byte, error) {
 	tw := tar.NewWriter(&buf)
 
 	err = tw.WriteHeader(&tar.Header{
-		Mode:     0555,
+		Mode:     0o555,
 		Name:     strings.TrimPrefix(entrypoint, "/"),
 		Size:     stat.Size(),
 		Typeflag: tar.TypeReg,
