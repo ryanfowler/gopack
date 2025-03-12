@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go: ["1.23"]
+        go: ["1.24.1"]
     steps:
       - uses: actions/checkout@v4
 
@@ -19,7 +19,6 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: ${{ matrix.go }}
-          check-latest: true
 
       - name: Format
         run: gofmt -s -w . && git diff --exit-code
@@ -36,7 +35,7 @@ jobs:
       - name: Lint
         uses: dominikh/staticcheck-action@v1.3.1
         with:
-          version: "2024.1.1"
+          version: "2025.1.1"
           install-go: false
           cache-key: ${{ matrix.go }}
 
