@@ -1,6 +1,6 @@
 module github.com/ryanfowler/gopack
 
-go 1.24.1
+go 1.24.5
 
 require (
 	github.com/google/go-containerregistry v0.20.6
