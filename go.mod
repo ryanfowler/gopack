@@ -6,7 +6,7 @@ require (
 	github.com/google/go-containerregistry v0.20.6
 	github.com/spf13/cobra v1.9.1
 	golang.org/x/sync v0.16.0
-	golang.org/x/term v0.33.0
+	golang.org/x/term v0.34.0
 )
 
 require (
@@ -48,7 +48,7 @@ require (
 	go.opentelemetry.io/proto/otlp v1.4.0 // indirect
 	golang.org/x/net v0.38.0 // indirect
 	golang.org/x/oauth2 v0.30.0 // indirect
-	golang.org/x/sys v0.34.0 // indirect
+	golang.org/x/sys v0.35.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20241209162323-e6fa225c2576 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20241209162323-e6fa225c2576 // indirect
 	google.golang.org/grpc v1.68.1 // indirect
