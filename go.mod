@@ -4,7 +4,7 @@ go 1.24.5
 
 require (
 	github.com/google/go-containerregistry v0.20.7
-	github.com/spf13/cobra v1.10.1
+	github.com/spf13/cobra v1.10.2
 	golang.org/x/sync v0.18.0
 	golang.org/x/term v0.37.0
 )
