@@ -62,7 +62,7 @@ func PushDaemon(ctx context.Context, imgName string, img v1.Image, options ...Pu
 		return err
 	}
 
-	opts.logger.Println(fmt.Sprintf("Pushing digest %s", digest.Hex))
+	opts.logger.Printf("Pushing digest %s\n", digest.Hex)
 	_, err = daemon.Write(srcTag, img, daemon.WithContext(ctx))
 	if err != nil {
 		return fmt.Errorf("pushing to daemon: %s: %w", srcTag.String(), err)
@@ -73,7 +73,7 @@ func PushDaemon(ctx context.Context, imgName string, img v1.Image, options ...Pu
 		if err != nil {
 			return fmt.Errorf("pushing to daemon: invalid tag %q: %w", imgName+":"+raw, err)
 		}
-		opts.logger.Println(fmt.Sprintf("Pushing tag %s", raw))
+		opts.logger.Printf("Pushing tag %s\n", raw)
 		err = daemon.Tag(srcTag, tag, daemon.WithContext(ctx))
 		if err != nil {
 			return fmt.Errorf("pushing to daemon: %s: %w", tag.String(), err)
