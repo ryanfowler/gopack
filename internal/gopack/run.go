@@ -110,8 +110,11 @@ func buildAllPlatforms(ctx context.Context, imgs map[types.Platform]v1.Image, bi
 		select {
 		case semaphore <- struct{}{}:
 		case <-ctx.Done():
-			return nil, ctx.Err()
 		}
+		if ctx.Err() != nil {
+			break
+		}
+
 		platform := platform
 		inImg := img
 		eg.Go(func() error {
@@ -129,6 +132,9 @@ func buildAllPlatforms(ctx context.Context, imgs map[types.Platform]v1.Image, bi
 
 	if err := eg.Wait(); err != nil {
 		return nil, err
+	}
+	if ctx.Err() != nil {
+		return nil, ctx.Err()
 	}
 
 	return out, nil
