@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -73,36 +74,41 @@ func (b *GoBuilder) GoBuild(ctx context.Context, outPath string, platform types.
 }
 
 func (b *GoBuilder) env(platform types.Platform) []string {
-	var out []string
-	out = append(out, os.Environ()...)
-	out = append(out, "GOOS="+platform.OS(), "GOARCH="+platform.Arch())
+	envMap := make(map[string]string)
+	for _, e := range os.Environ() {
+		if before, after, ok := strings.Cut(e, "="); ok {
+			envMap[before] = after
+		}
+	}
+	envMap["GOOS"] = platform.OS()
+	envMap["GOARCH"] = platform.Arch()
+	envMap["CGO_ENABLED"] = "0"
 	if b.opts.cgoEnabled {
-		out = append(out, "CGO_ENABLED=1")
-	} else {
-		out = append(out, "CGO_ENABLED=0")
+		envMap["CGO_ENABLED"] = "1"
 	}
 
 	variantStr := strings.TrimPrefix(platform.Variant(), "v")
-	if variantStr == "" {
-		return out
-	}
-
-	variant, err := strconv.Atoi(variantStr)
-	if err != nil {
-		return out
-	}
-
-	switch platform.Arch() {
-	case "arm":
-		// https://github.com/golang/go/wiki/MinimumRequirements#arm
-		if variant >= 5 && variant <= 7 {
-			out = append(out, "GOARM="+variantStr)
-		}
-	case "amd64":
-		// https://github.com/golang/go/wiki/MinimumRequirements#amd64
-		if variant >= 1 && variant <= 4 {
-			out = append(out, "GOAMD64=v"+variantStr)
+	if variantStr != "" {
+		if variant, err := strconv.Atoi(variantStr); err == nil {
+			switch platform.Arch() {
+			case "arm":
+				// https://github.com/golang/go/wiki/MinimumRequirements#arm
+				if variant >= 5 && variant <= 7 {
+					envMap["GOARM"] = variantStr
+				}
+			case "amd64":
+				// https://github.com/golang/go/wiki/MinimumRequirements#amd64
+				if variant >= 1 && variant <= 4 {
+					envMap["GOAMD64"] = "v" + variantStr
+				}
+			}
 		}
 	}
+
+	out := make([]string, 0, len(envMap))
+	for k, v := range envMap {
+		out = append(out, k+"="+v)
+	}
+	sort.Strings(out)
 	return out
 }
