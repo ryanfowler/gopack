@@ -77,7 +77,7 @@ func BuildImage(ctx context.Context, goBinPath string, base v1.Image, options ..
 	config.Author = "gopack"
 	config.Config.Cmd = nil
 	config.Config.Entrypoint = []string{entrypoint}
-	if config.Config.Labels == nil && len(opts.labels) > 0 {
+	if config.Config.Labels == nil {
 		config.Config.Labels = make(map[string]string)
 	}
 	for key, val := range opts.labels {
