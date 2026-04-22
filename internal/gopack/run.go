@@ -311,6 +311,9 @@ func matchingDescriptor(p types.Platform, ds []v1.Descriptor) (v1.Descriptor, bo
 }
 
 func platformsEqual(p1 types.Platform, p2 *v1.Platform) bool {
+	if p2 == nil {
+		return false
+	}
 	return p1.OS() == p2.OS && p1.Arch() == p2.Architecture && p1.Variant() == p2.Variant
 }
 
