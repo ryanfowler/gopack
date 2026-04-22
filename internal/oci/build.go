@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 	"time"
@@ -37,7 +38,7 @@ func BuildImage(ctx context.Context, goBinPath string, base v1.Image, options ..
 		o(opts)
 	}
 
-	entrypoint := "/app/" + filepath.Base(goBinPath)
+	entrypoint := "/app/" + path.Base(goBinPath)
 	raw, err := tarGoBin(goBinPath, entrypoint)
 	if err != nil {
 		return nil, fmt.Errorf("tar go binary: %w", err)
