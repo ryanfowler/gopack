@@ -23,6 +23,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	v1 "github.com/google/go-containerregistry/pkg/v1"
 	"github.com/google/go-containerregistry/pkg/v1/mutate"
@@ -106,10 +107,15 @@ func tarGoBin(goBinPath, entrypoint string) ([]byte, error) {
 	tw := tar.NewWriter(&buf)
 
 	err = tw.WriteHeader(&tar.Header{
-		Mode:     0o555,
 		Name:     strings.TrimPrefix(entrypoint, "/"),
+		Mode:     0o555,
 		Size:     stat.Size(),
 		Typeflag: tar.TypeReg,
+		ModTime:  time.Time{},
+		Uid:      0,
+		Gid:      0,
+		Uname:    "",
+		Gname:    "",
 	})
 	if err != nil {
 		return nil, err
