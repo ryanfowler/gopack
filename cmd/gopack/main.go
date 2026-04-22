@@ -18,8 +18,10 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"os/signal"
 	"runtime/debug"
 	"strings"
+	"syscall"
 
 	"github.com/ryanfowler/gopack/internal/gopack"
 	"github.com/ryanfowler/gopack/internal/oci"
@@ -74,8 +76,8 @@ var runCmd = &cobra.Command{
 	Args:  cobra.RangeArgs(0, 1),
 	Short: "Build and publish a Go binary as a minimal OCI image",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		ctx, cancel := context.WithCancel(context.Background())
-		defer cancel()
+		ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+		defer stop()
 
 		options := []gopack.RunOption{
 			gopack.WithCGOEnabled(cgoEnabled),
