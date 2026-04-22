@@ -116,6 +116,12 @@ var runCmd = &cobra.Command{
 				} else {
 					key = label
 				}
+				if key == "" {
+					return fmt.Errorf("invalid label %q: empty key", label)
+				}
+				if !isValidLabelKey(key) {
+					return fmt.Errorf("invalid label key %q", key)
+				}
 				m[key] = val
 			}
 			options = append(options, gopack.WithLabels(m))
@@ -137,6 +143,25 @@ var runCmd = &cobra.Command{
 		fmt.Println(out)
 		return nil
 	},
+}
+
+func isValidLabelKey(key string) bool {
+	if key == "" {
+		return false
+	}
+	for i, c := range key {
+		if i == 0 && !isAlphaNum(c) {
+			return false
+		}
+		if !isAlphaNum(c) && c != '.' && c != '_' && c != '-' && c != '/' {
+			return false
+		}
+	}
+	return true
+}
+
+func isAlphaNum(c rune) bool {
+	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9')
 }
 
 func main() {
