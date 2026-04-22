@@ -71,7 +71,7 @@ func PushDaemon(ctx context.Context, imgName string, img v1.Image, options ...Pu
 	for _, raw := range opts.tags {
 		tag, err := name.NewTag(imgName + ":" + raw)
 		if err != nil {
-			return fmt.Errorf("pushing to daemon: invalid tag: %s: %w", tag.String(), err)
+			return fmt.Errorf("pushing to daemon: invalid tag %q: %w", imgName+":"+raw, err)
 		}
 		opts.logger.Println(fmt.Sprintf("Pushing tag %s", raw))
 		err = daemon.Tag(srcTag, tag, daemon.WithContext(ctx))
