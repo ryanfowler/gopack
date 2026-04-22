@@ -18,8 +18,8 @@ import "testing"
 
 func TestIsValidLabelKey(t *testing.T) {
 	tests := []struct {
-		key    string
-		valid  bool
+		key   string
+		valid bool
 	}{
 		{"", false},
 		{"a", true},
