@@ -48,6 +48,10 @@ func Run(ctx context.Context, options ...RunOption) (string, error) {
 	if err := validateDaemon(opts.daemon); err != nil {
 		return "", err
 	}
+	platforms, err := parsePlatforms(opts.platforms)
+	if err != nil {
+		return "", err
+	}
 
 	// binName represents the name of the application/binary, as parsed from
 	// the provided main path. If no repository is provided, the binName is
@@ -59,8 +63,6 @@ func Run(ctx context.Context, options ...RunOption) (string, error) {
 	if opts.repository == "" {
 		opts.repository = binName
 	}
-
-	platforms := parsePlatforms(opts.logger, opts.platforms)
 
 	baseDesc, err := getBaseDesc(ctx, opts)
 	if err != nil {
@@ -267,15 +269,15 @@ func getBaseDesc(ctx context.Context, opts *runOptions) (*remote.Descriptor, err
 	return desc, nil
 }
 
-func parsePlatforms(l types.Logger, in []string) []types.Platform {
+func parsePlatforms(in []string) ([]types.Platform, error) {
 	out := make([]types.Platform, len(in))
 	for i, p := range in {
 		out[i] = types.ParsePlatform(p)
 		if !out[i].IsSupported() {
-			l.Printf("Warning: platform %q is not officially supported\n", p)
+			return nil, fmt.Errorf("unsupported platform %q", p)
 		}
 	}
-	return out
+	return out, nil
 }
 
 func matchImages(platforms []types.Platform, desc *remote.Descriptor) (map[types.Platform]v1.Image, error) {

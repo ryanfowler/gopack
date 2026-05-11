@@ -32,3 +32,16 @@ func TestRunRejectsUnsupportedDaemonBeforeOtherWork(t *testing.T) {
 		t.Fatalf("Run() error = %q, want unsupported daemon error", err)
 	}
 }
+
+func TestRunRejectsUnsupportedPlatformBeforeOtherWork(t *testing.T) {
+	_, err := Run(context.Background(),
+		WithPlatforms([]string{"linux/ad64"}),
+		WithMainPath("/path/that/does/not/exist"),
+	)
+	if err == nil {
+		t.Fatal("Run() error = nil, want unsupported platform error")
+	}
+	if !strings.Contains(err.Error(), `unsupported platform "linux/ad64"`) {
+		t.Fatalf("Run() error = %q, want unsupported platform error", err)
+	}
+}
