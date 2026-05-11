@@ -82,8 +82,12 @@ func TestEnvVariants(t *testing.T) {
 		wantKey  string
 		wantVal  string
 	}{
+		{"linux/arm/v6", "GOARM", "6"},
+		{"linux/arm/v7", "GOARM", "7"},
 		{"linux/arm:v6", "GOARM", "6"},
 		{"linux/arm:v7", "GOARM", "7"},
+		{"linux/amd64/v3", "GOAMD64", "v3"},
+		{"linux/amd64/v4", "GOAMD64", "v4"},
 		{"linux/amd64:v3", "GOAMD64", "v3"},
 		{"linux/amd64:v4", "GOAMD64", "v4"},
 		{"linux/arm:v8", "", ""},

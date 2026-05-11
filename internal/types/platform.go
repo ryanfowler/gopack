@@ -32,10 +32,20 @@ func ParsePlatform(s string) Platform {
 		s = s[:idx]
 	}
 	if idx := strings.Index(s, "/"); idx >= 0 {
-		out.arch = s[idx+1:]
-		s = s[:idx]
+		out.os = s[:idx]
+		s = s[idx+1:]
+	} else {
+		out.os = s
+		return out
 	}
-	out.os = s
+	if idx := strings.Index(s, "/"); idx >= 0 {
+		out.arch = s[:idx]
+		if out.variant == "" {
+			out.variant = s[idx+1:]
+		}
+		return out
+	}
+	out.arch = s
 
 	return out
 }
@@ -59,7 +69,7 @@ func (p Platform) IsEqual(pf Platform) bool {
 func (p Platform) String() string {
 	out := p.os + "/" + p.arch
 	if p.variant != "" {
-		out += ":" + p.variant
+		out += "/" + p.variant
 	}
 	return out
 }

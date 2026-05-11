@@ -32,7 +32,13 @@ func TestPlatform(t *testing.T) {
 			isSupported: true,
 		},
 		{
-			name:        "should parse platform with variant",
+			name:        "should parse platform with slash variant",
+			input:       "linux/arm/v7",
+			expOut:      Platform{os: "linux", arch: "arm", variant: "v7"},
+			isSupported: true,
+		},
+		{
+			name:        "should parse platform with colon variant",
 			input:       "linux/amd64:v4",
 			expOut:      Platform{os: "linux", arch: "amd64", variant: "v4"},
 			isSupported: true,
@@ -60,6 +66,9 @@ func TestPlatform(t *testing.T) {
 			}
 			if ok := p.IsSupported(); ok != test.isSupported {
 				t.Fatalf("Unexpected IsSupported result: %v", ok)
+			}
+			if p.variant != "" && p.String() != test.expOut.String() {
+				t.Fatalf("Unexpected platform string: %s", p.String())
 			}
 		})
 	}
