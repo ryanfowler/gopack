@@ -14,7 +14,41 @@
 
 package main
 
-import "testing"
+import (
+	"bytes"
+	"strings"
+	"testing"
+)
+
+func TestBuildRequiresOutput(t *testing.T) {
+	_, err := executeCommand("build", "/path/that/does/not/exist")
+	if err == nil {
+		t.Fatal("command error = nil, want missing output error")
+	}
+	if !strings.Contains(err.Error(), "build requires --output") {
+		t.Fatalf("command error = %q, want missing output error", err)
+	}
+}
+
+func TestLoadRejectsUnsupportedDaemonBeforeOtherWork(t *testing.T) {
+	_, err := executeCommand("load", "/path/that/does/not/exist", "--daemon", "podman")
+	if err == nil {
+		t.Fatal("command error = nil, want unsupported daemon error")
+	}
+	if !strings.Contains(err.Error(), `unsupported daemon "podman"`) {
+		t.Fatalf("command error = %q, want unsupported daemon error", err)
+	}
+}
+
+func executeCommand(args ...string) (string, error) {
+	cmd := newRootCmd()
+	buf := new(bytes.Buffer)
+	cmd.SetOut(buf)
+	cmd.SetErr(buf)
+	cmd.SetArgs(args)
+	err := cmd.Execute()
+	return buf.String(), err
+}
 
 func TestIsValidLabelKey(t *testing.T) {
 	tests := []struct {

@@ -38,6 +38,12 @@ func TestPlatform(t *testing.T) {
 			isSupported: true,
 		},
 		{
+			name:        "should parse standard arm64 platform",
+			input:       "linux/arm64",
+			expOut:      Platform{os: "linux", arch: "arm64"},
+			isSupported: true,
+		},
+		{
 			name:        "should parse platform with colon variant",
 			input:       "linux/amd64:v4",
 			expOut:      Platform{os: "linux", arch: "amd64", variant: "v4"},
