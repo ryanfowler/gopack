@@ -38,10 +38,15 @@ import (
 
 var ErrNoMatchingImage = errors.New("no matching image")
 
+const dockerDaemon = "docker"
+
 func Run(ctx context.Context, options ...RunOption) (string, error) {
 	opts := defaultRunOptions()
 	for _, o := range options {
 		o(opts)
+	}
+	if err := validateDaemon(opts.daemon); err != nil {
+		return "", err
 	}
 
 	// binName represents the name of the application/binary, as parsed from
@@ -78,6 +83,15 @@ func Run(ctx context.Context, options ...RunOption) (string, error) {
 	}
 
 	return output, nil
+}
+
+func validateDaemon(daemon string) error {
+	switch daemon {
+	case "", dockerDaemon:
+		return nil
+	default:
+		return fmt.Errorf("unsupported daemon %q (supported: %s)", daemon, dockerDaemon)
+	}
 }
 
 func parseBinName(mainPath string) (string, error) {
@@ -161,7 +175,7 @@ func build(ctx context.Context, goBuilder *golang.GoBuilder, binName string, p t
 }
 
 func push(ctx context.Context, imgs map[types.Platform]v1.Image, mt crtypes.MediaType, opts *runOptions) (string, error) {
-	if opts.daemon == "docker" {
+	if opts.daemon == dockerDaemon {
 		if len(imgs) != 1 {
 			return "", errors.New("push: can only push a single image to docker")
 		}
