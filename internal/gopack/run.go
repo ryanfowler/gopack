@@ -226,7 +226,7 @@ func push(ctx context.Context, imgs map[types.Platform]v1.Image, mt crtypes.Medi
 	base := mutate.IndexMediaType(empty.Index, mt)
 	index := mutate.AppendManifests(base, addendums...)
 
-	err = oci.Push(ctx, repo, index, oci.WithTags(opts.tags))
+	err = oci.Push(ctx, repo, index, oci.WithTags(opts.tags), oci.WithLogger(opts.logger))
 	if err != nil {
 		return "", err
 	}
