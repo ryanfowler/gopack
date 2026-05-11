@@ -15,11 +15,15 @@
 package gopack
 
 import (
+	"archive/tar"
 	"context"
 	"errors"
 	"fmt"
+	"io"
+	"io/fs"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	"sync"
 
@@ -30,6 +34,7 @@ import (
 	"github.com/google/go-containerregistry/pkg/name"
 	v1 "github.com/google/go-containerregistry/pkg/v1"
 	"github.com/google/go-containerregistry/pkg/v1/empty"
+	"github.com/google/go-containerregistry/pkg/v1/layout"
 	"github.com/google/go-containerregistry/pkg/v1/mutate"
 	"github.com/google/go-containerregistry/pkg/v1/remote"
 	crtypes "github.com/google/go-containerregistry/pkg/v1/types"
@@ -39,13 +44,17 @@ import (
 var ErrNoMatchingImage = errors.New("no matching image")
 
 const dockerDaemon = "docker"
+const ociOutputPrefix = "oci:"
 
 func Run(ctx context.Context, options ...RunOption) (string, error) {
 	opts := defaultRunOptions()
 	for _, o := range options {
 		o(opts)
 	}
-	if err := validateDaemon(opts.daemon); err != nil {
+	if opts.load && opts.daemon == "" {
+		opts.daemon = dockerDaemon
+	}
+	if err := validateDestination(opts); err != nil {
 		return "", err
 	}
 	platforms, err := parsePlatforms(opts.platforms)
@@ -85,6 +94,21 @@ func Run(ctx context.Context, options ...RunOption) (string, error) {
 	}
 
 	return output, nil
+}
+
+func validateDestination(opts *runOptions) error {
+	if err := validateDaemon(opts.daemon); err != nil {
+		return err
+	}
+	if opts.output != "" {
+		if opts.daemon != "" || opts.load {
+			return errors.New("cannot use output with daemon load")
+		}
+		if _, err := parseOutput(opts.output); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func validateDaemon(daemon string) error {
@@ -177,6 +201,17 @@ func build(ctx context.Context, goBuilder *golang.GoBuilder, binName string, p t
 }
 
 func push(ctx context.Context, imgs map[types.Platform]v1.Image, mt crtypes.MediaType, opts *runOptions) (string, error) {
+	if opts.output != "" {
+		path, err := parseOutput(opts.output)
+		if err != nil {
+			return "", err
+		}
+		if err := writeOCIArchive(path, imgs); err != nil {
+			return "", err
+		}
+		return path, nil
+	}
+
 	if opts.daemon == dockerDaemon {
 		if len(imgs) != 1 {
 			return "", errors.New("push: can only push a single image to docker")
@@ -209,10 +244,52 @@ func push(ctx context.Context, imgs map[types.Platform]v1.Image, mt crtypes.Medi
 		return chooseOutput(opts.repository, img, opts.tags)
 	}
 
+	index := makeImageIndex(imgs, mt)
+	err = oci.Push(ctx, repo, index, oci.WithTags(opts.tags), oci.WithLogger(opts.logger))
+	if err != nil {
+		return "", err
+	}
+	return chooseOutput(opts.repository, index, opts.tags)
+}
+
+func parseOutput(output string) (string, error) {
+	path := strings.TrimPrefix(output, ociOutputPrefix)
+	if path == output || path == "" {
+		return "", fmt.Errorf("unsupported output %q (supported: oci:<path>)", output)
+	}
+	return path, nil
+}
+
+func writeOCIArchive(path string, imgs map[types.Platform]v1.Image) error {
+	dir, err := os.MkdirTemp("", "gopack-oci-")
+	if err != nil {
+		return err
+	}
+	defer os.RemoveAll(dir)
+
+	if _, err := layout.Write(dir, makeImageIndex(imgs, crtypes.OCIImageIndex)); err != nil {
+		return fmt.Errorf("writing OCI layout: %w", err)
+	}
+	return tarDirectory(path, dir)
+}
+
+func makeImageIndex(imgs map[types.Platform]v1.Image, mt crtypes.MediaType) v1.ImageIndex {
+	if !mt.IsIndex() {
+		mt = crtypes.OCIImageIndex
+	}
+
+	platforms := make([]types.Platform, 0, len(imgs))
+	for platform := range imgs {
+		platforms = append(platforms, platform)
+	}
+	sort.Slice(platforms, func(i, j int) bool {
+		return platforms[i].String() < platforms[j].String()
+	})
+
 	addendums := make([]mutate.IndexAddendum, 0, len(imgs))
-	for platform, img := range imgs {
+	for _, platform := range platforms {
 		addendums = append(addendums, mutate.IndexAddendum{
-			Add: img,
+			Add: imgs[platform],
 			Descriptor: v1.Descriptor{
 				Platform: &v1.Platform{
 					Architecture: platform.Arch(),
@@ -224,13 +301,70 @@ func push(ctx context.Context, imgs map[types.Platform]v1.Image, mt crtypes.Medi
 	}
 
 	base := mutate.IndexMediaType(empty.Index, mt)
-	index := mutate.AppendManifests(base, addendums...)
+	return mutate.AppendManifests(base, addendums...)
+}
 
-	err = oci.Push(ctx, repo, index, oci.WithTags(opts.tags), oci.WithLogger(opts.logger))
+func tarDirectory(path string, dir string) (err error) {
+	out, err := os.Create(path)
 	if err != nil {
-		return "", err
+		return err
 	}
-	return chooseOutput(opts.repository, index, opts.tags)
+	defer func() {
+		if closeErr := out.Close(); err == nil {
+			err = closeErr
+		}
+	}()
+
+	tw := tar.NewWriter(out)
+	defer func() {
+		if closeErr := tw.Close(); err == nil {
+			err = closeErr
+		}
+	}()
+
+	err = filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		rel, err := filepath.Rel(dir, path)
+		if err != nil {
+			return err
+		}
+		if rel == "." {
+			return nil
+		}
+
+		info, err := d.Info()
+		if err != nil {
+			return err
+		}
+		hdr, err := tar.FileInfoHeader(info, "")
+		if err != nil {
+			return err
+		}
+		hdr.Name = filepath.ToSlash(rel)
+		if d.IsDir() {
+			hdr.Name += "/"
+		}
+		if err := tw.WriteHeader(hdr); err != nil {
+			return err
+		}
+		if !info.Mode().IsRegular() {
+			return nil
+		}
+
+		in, err := os.Open(path)
+		if err != nil {
+			return err
+		}
+		_, copyErr := io.Copy(tw, in)
+		closeErr := in.Close()
+		if copyErr != nil {
+			return copyErr
+		}
+		return closeErr
+	})
+	return err
 }
 
 type digester interface {

@@ -84,6 +84,18 @@ func WithDaemon(v string) RunOption {
 	}
 }
 
+func WithLoad(v bool) RunOption {
+	return func(ro *runOptions) {
+		ro.load = v
+	}
+}
+
+func WithOutput(v string) RunOption {
+	return func(ro *runOptions) {
+		ro.output = v
+	}
+}
+
 func WithLabels(v map[string]string) RunOption {
 	return func(ro *runOptions) {
 		ro.labels = v
@@ -124,6 +136,8 @@ type runOptions struct {
 	base             string
 	compressionLevel int
 	daemon           string
+	load             bool
+	output           string
 	labels           map[string]string
 	platforms        []string
 	repository       string
@@ -144,6 +158,8 @@ func defaultRunOptions() *runOptions {
 		base:             "gcr.io/distroless/static:nonroot",
 		compressionLevel: gzip.DefaultCompression,
 		daemon:           "",
+		load:             false,
+		output:           "",
 		labels:           nil,
 		platforms:        []string{types.DefaultPlatform.String()},
 		repository:       "",
