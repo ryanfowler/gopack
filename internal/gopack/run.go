@@ -418,13 +418,17 @@ func matchImages(platforms []types.Platform, desc *remote.Descriptor) (map[types
 	out := make(map[types.Platform]v1.Image, len(platforms))
 
 	if desc.MediaType.IsImage() {
+		img, err := desc.Image()
+		if err != nil {
+			return nil, err
+		}
+		config, err := img.ConfigFile()
+		if err != nil {
+			return nil, err
+		}
 		for _, platform := range platforms {
-			if !platformsEqual(platform, desc.Platform) {
+			if !platformsEqual(platform, config.Platform()) {
 				return nil, fmt.Errorf("base image: platform %s: %w", platform, ErrNoMatchingImage)
-			}
-			img, err := desc.Image()
-			if err != nil {
-				return nil, err
 			}
 			out[platform] = img
 		}

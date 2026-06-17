@@ -17,7 +17,11 @@ package gopack
 import (
 	"archive/tar"
 	"context"
+	"errors"
 	"io"
+	"log"
+	"net/http/httptest"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -25,8 +29,12 @@ import (
 
 	"github.com/ryanfowler/gopack/internal/types"
 
+	"github.com/google/go-containerregistry/pkg/name"
+	"github.com/google/go-containerregistry/pkg/registry"
 	v1 "github.com/google/go-containerregistry/pkg/v1"
+	"github.com/google/go-containerregistry/pkg/v1/mutate"
 	"github.com/google/go-containerregistry/pkg/v1/random"
+	"github.com/google/go-containerregistry/pkg/v1/remote"
 )
 
 func TestRunRejectsUnsupportedDaemonBeforeOtherWork(t *testing.T) {
@@ -82,6 +90,33 @@ func TestRunRejectsOutputWithDaemonLoadBeforeOtherWork(t *testing.T) {
 	}
 }
 
+func TestMatchImagesUsesConfigPlatformForImageManifest(t *testing.T) {
+	desc := pushImageManifest(t, imageWithPlatform(t, types.ParsePlatform("linux/amd64")))
+	if desc.Platform != nil {
+		t.Fatalf("test setup: descriptor platform = %#v, want nil", desc.Platform)
+	}
+
+	imgs, err := matchImages([]types.Platform{types.ParsePlatform("linux/amd64")}, desc)
+	if err != nil {
+		t.Fatalf("matchImages() error = %v", err)
+	}
+	if len(imgs) != 1 {
+		t.Fatalf("matchImages() returned %d images, want 1", len(imgs))
+	}
+}
+
+func TestMatchImagesRejectsImageManifestConfigPlatformMismatch(t *testing.T) {
+	desc := pushImageManifest(t, imageWithPlatform(t, types.ParsePlatform("linux/arm64")))
+
+	_, err := matchImages([]types.Platform{types.ParsePlatform("linux/amd64")}, desc)
+	if err == nil {
+		t.Fatal("matchImages() error = nil, want no matching image error")
+	}
+	if !errors.Is(err, ErrNoMatchingImage) {
+		t.Fatalf("matchImages() error = %v, want %v", err, ErrNoMatchingImage)
+	}
+}
+
 func TestWriteOCIArchive(t *testing.T) {
 	img, err := random.Image(1024, 1)
 	if err != nil {
@@ -120,4 +155,51 @@ func TestWriteOCIArchive(t *testing.T) {
 			t.Fatalf("OCI archive missing %s", name)
 		}
 	}
+}
+
+func imageWithPlatform(t *testing.T, platform types.Platform) v1.Image {
+	t.Helper()
+
+	img, err := random.Image(1024, 1)
+	if err != nil {
+		t.Fatal(err)
+	}
+	config, err := img.ConfigFile()
+	if err != nil {
+		t.Fatal(err)
+	}
+	config = config.DeepCopy()
+	config.OS = platform.OS()
+	config.Architecture = platform.Arch()
+	config.Variant = strings.TrimPrefix(platform.Variant(), "v")
+
+	img, err = mutate.ConfigFile(img, config)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return img
+}
+
+func pushImageManifest(t *testing.T, img v1.Image) *remote.Descriptor {
+	t.Helper()
+
+	server := httptest.NewServer(registry.New(registry.Logger(log.New(io.Discard, "", 0))))
+	t.Cleanup(server.Close)
+
+	u, err := url.Parse(server.URL)
+	if err != nil {
+		t.Fatal(err)
+	}
+	ref, err := name.NewTag(u.Host+"/base:latest", name.Insecure)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := remote.Write(ref, img); err != nil {
+		t.Fatal(err)
+	}
+	desc, err := remote.Get(ref)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return desc
 }
