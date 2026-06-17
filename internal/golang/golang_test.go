@@ -111,3 +111,73 @@ func TestEnvVariants(t *testing.T) {
 		})
 	}
 }
+
+func TestEnvClearsHostArchitectureTuning(t *testing.T) {
+	hostTuning := map[string]string{
+		"GO386":     "softfloat",
+		"GOAMD64":   "v4",
+		"GOARM":     "5,softfloat",
+		"GOARM64":   "v9.5,crypto",
+		"GOMIPS":    "softfloat",
+		"GOMIPS64":  "softfloat",
+		"GOPPC64":   "power10",
+		"GORISCV64": "rva23u64",
+		"GOWASM":    "satconv,signext",
+	}
+	for key, value := range hostTuning {
+		t.Setenv(key, value)
+	}
+
+	tests := []struct {
+		platform string
+		want     map[string]string
+	}{
+		{
+			platform: "linux/386",
+			want:     map[string]string{"GO386": "sse2"},
+		},
+		{
+			platform: "linux/amd64",
+			want:     map[string]string{"GOAMD64": "v1"},
+		},
+		{
+			platform: "linux/amd64/v3",
+			want:     map[string]string{"GOAMD64": "v3"},
+		},
+		{
+			platform: "linux/arm",
+			want:     map[string]string{"GOARM": "7"},
+		},
+		{
+			platform: "linux/arm/v5",
+			want:     map[string]string{"GOARM": "5"},
+		},
+		{
+			platform: "linux/arm64",
+			want:     map[string]string{"GOARM64": "v8.0"},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.platform, func(t *testing.T) {
+			b := New()
+			platform := types.ParsePlatform(tt.platform)
+			env := b.env(platform)
+			m := envToMap(t, env)
+
+			for key, want := range tt.want {
+				if got := m[key]; got != want {
+					t.Errorf("%s = %q, want %q", key, got, want)
+				}
+			}
+			for key, poisoned := range hostTuning {
+				if _, ok := tt.want[key]; ok {
+					continue
+				}
+				if got, ok := m[key]; ok {
+					t.Errorf("%s leaked as %q from host value %q", key, got, poisoned)
+				}
+			}
+		})
+	}
+}
